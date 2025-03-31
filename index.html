@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的博客</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #3498db; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+               max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .post { background: #f9f9f9; padding: 20px; margin-bottom: 30px; border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .post h2 { color: var(--primary); margin-top: 0; }
+        .post-date { color: #7f8c8d; font-size: 0.9em; }
+        nav { background: var(--primary); padding: 1em; margin-bottom: 2em; border-radius: 8px; }
+        nav a { color: white; text-decoration: none; margin-right: 20px; }
+        @media (max-width: 600px) { body { padding: 10px; } .post { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#home">首页</a>
+        <a href="#new">写文章</a>
+    </nav>
+
+    <!-- 文章列表 -->
+    <div id="posts"></div>
+
+    <!-- 新建文章表单 -->
+    <div id="editor" style="display: none;">
+        <h2>新文章</h2>
+        <input type="text" id="title" placeholder="标题" style="width:100%; margin:10px 0; padding:8px;">
+        <textarea id="content" placeholder="内容" style="width:100%; height:200px; padding:8px;"></textarea>
+        <button onclick="savePost()" style="margin-top:10px; padding:8px 16px; background:var(--secondary); color:white; border:none; border-radius:4px;">发布</button>
+    </div>
+
+    <script>
+        // 从 localStorage 加载文章
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        function showPosts() {
+            document.getElementById('posts').innerHTML = posts.map((post, index) => `
+                <div class="post">
+                    <h2>${post.title}</h2>
+                    <div class="post-date">${new Date(post.date).toLocaleDateString()}</div>
+                    <p>${post.content.replace(/\n/g, '<br>')}</p>
+                </div>
+            `).join('');
+        }
+
+        function savePost() {
+            const newPost = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value,
+                date: new Date().toISOString()
+            };
+            posts.unshift(newPost);
+            localStorage.setItem('posts', JSON.stringify(posts));
+            window.location.hash = '#home';
+            showPosts();
+        }
+
+        // 路由控制
+        window.onhashchange = () => {
+            document.getElementById('posts').style.display = 
+                window.location.hash === '#home' ? 'block' : 'none';
+            document.getElementById('editor').style.display = 
+                window.location.hash === '#new' ? 'block' : 'none';
+        }
+
+        // 初始化
+        window.location.hash = '#home';
+        showPosts();
+    </script>
+</body>
+</html>
